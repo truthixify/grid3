@@ -92,6 +92,10 @@ pub fn validate_join(input_data: &[u8], output_data: &[u8]) -> Result<(), Error>
     if output.player_o_lock == ZERO_HASH {
         return Err(Error::Unauthorized);
     }
+    // Player O cannot be the same as Player X
+    if output.player_o_lock == input.player_x_lock {
+        return Err(Error::Unauthorized);
+    }
     if input.player_x_lock != output.player_x_lock {
         return Err(Error::InvalidTransition);
     }

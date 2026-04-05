@@ -1,0 +1,13 @@
+{
+  "cell_recipes": [
+    {
+      "name": "tictactoe-script",
+      "tx_hash": "0xc1fdf9c24c256df4cc391c02509a8448555b43506401610085231f6deca97211",
+      "index": 0,
+      "occupied_capacity": 3582400000000,
+      "data_hash": "0xb3efdd469cd51c4ddd6f9497f152aecb3250b46d8006561e5e63d758fc57a6e8",
+      "type_id": "0x4245528f6287893443bb2a160757f32c4aba0669772c2575955abbff298dc59d"
+    }
+  ],
+  "dep_group_recipes": []
+}

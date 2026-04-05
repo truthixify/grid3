@@ -40,7 +40,6 @@ export default function GamePage({ params }: GamePageProps) {
     capacity,
     lockScript,
     currentGameId,
-    lastPoll,
     cellConsumed,
     pausePolling,
     refresh,
@@ -171,7 +170,7 @@ export default function GamePage({ params }: GamePageProps) {
 
   // Determine if this is WAITING state
   if (gameState.gameStatus === GameStatus.WAITING) {
-    return <WaitingRoom gameState={gameState} gameId={currentGameId} capacity={capacity} />;
+    return <WaitingRoom gameState={gameState} gameId={currentGameId} capacity={capacity} pausePolling={pausePolling} />;
   }
 
   // ACTIVE or FINISHED game
@@ -730,11 +729,6 @@ export default function GamePage({ params }: GamePageProps) {
               <span className={`material-symbols-outlined text-sm ${refreshing ? "animate-spin" : ""}`}>sync</span>
               {refreshing ? "Refreshing..." : "Refresh State"}
             </button>
-            {lastPoll > 0 && (
-              <p className="text-[9px] text-on-surface-variant/50 font-mono text-center mt-1">
-                Last sync: {new Date(lastPoll).toLocaleTimeString()}
-              </p>
-            )}
           </div>
         </div>
       </div>
@@ -748,10 +742,12 @@ function WaitingRoom({
   gameState,
   gameId,
   capacity,
+  pausePolling,
 }: {
   gameState: import("@/lib/types").GameState;
   gameId: string;
   capacity: bigint;
+  pausePolling: (ms?: number, expectMoreMoves?: boolean) => void;
 }) {
   const router = useRouter();
   const signer = ccc.useSigner();
@@ -775,9 +771,12 @@ function WaitingRoom({
     };
   }, [signer]);
 
-  const isCreator =
-    signerLockHash &&
-    gameState.playerXLock.toLowerCase() === signerLockHash.toLowerCase();
+  // null = still loading, true = creator, false = opponent
+  const isCreator = !signer
+    ? false
+    : !signerLockHash
+    ? null
+    : gameState.playerXLock.toLowerCase() === signerLockHash.toLowerCase();
 
   const gameUrl =
     typeof window !== "undefined"
@@ -794,6 +793,8 @@ function WaitingRoom({
 
   async function handleJoin() {
     if (!signer) return;
+    // Pause polling without expecting more moves (JOIN doesn't add board moves)
+    pausePolling(25000, false);
     try {
       await joinGame(
         { outPoint: parseOutPointFromId(gameId), capacity },
@@ -834,7 +835,13 @@ function WaitingRoom({
           {/* Left panel - Info */}
           <div className="space-y-6">
             <h1 className="font-headline font-bold italic text-3xl md:text-4xl text-on-surface leading-tight">
-              {isCreator ? (
+              {isCreator === null ? (
+                <>
+                  LOADING
+                  <br />
+                  <span className="text-gradient-hero">SESSION...</span>
+                </>
+              ) : isCreator ? (
                 <>
                   WAITING_FOR
                   <br />
@@ -857,7 +864,7 @@ function WaitingRoom({
               <span className="text-primary text-2xl font-headline font-bold">
                 {formatCKB(gameState.stakeAmount)} CKB
               </span>
-              {!isCreator && (
+              {isCreator === false && (
                 <p className="text-on-surface-variant text-xs font-body mt-2">
                   You will need to match this stake to join.
                 </p>
@@ -885,7 +892,7 @@ function WaitingRoom({
             </div>
 
             {/* Copy link (creator only) */}
-            {isCreator && (
+            {isCreator === true && (
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleCopy}
@@ -899,8 +906,8 @@ function WaitingRoom({
               </div>
             )}
 
-            {/* Join button (opponent) */}
-            {!isCreator && (
+            {/* Join button (opponent only — hidden for creator and while loading) */}
+            {isCreator === false && (
               <div className="space-y-3">
                 {!signer ? (
                   <button
@@ -911,6 +918,13 @@ function WaitingRoom({
                       account_balance_wallet
                     </span>
                     CONNECT_WALLET_TO_JOIN
+                  </button>
+                ) : !signerLockHash ? (
+                  <button
+                    disabled
+                    className="cta-gradient text-on-primary-fixed font-headline font-bold text-sm tracking-widest px-8 py-4 rounded-sm flex items-center gap-2 w-full justify-center opacity-50 cursor-not-allowed"
+                  >
+                    Loading wallet...
                   </button>
                 ) : (
                   <button
@@ -950,31 +964,31 @@ function WaitingRoom({
               {/* Content */}
               <div className="relative z-10 flex flex-col items-center text-center">
                 <span className="material-symbols-outlined text-primary text-5xl waiting-pulse mb-6">
-                  {isCreator ? "pending" : "videogame_asset"}
+                  {isCreator === false ? "videogame_asset" : "pending"}
                 </span>
                 <h3 className="font-headline font-bold text-base text-on-surface tracking-widest mb-2">
-                  {isCreator ? (
-                    <>
-                      SEARCHING FOR
-                      <br />
-                      OPPONENT
-                    </>
-                  ) : (
+                  {isCreator === false ? (
                     <>
                       READY TO
                       <br />
                       PLAY?
                     </>
+                  ) : (
+                    <>
+                      SEARCHING FOR
+                      <br />
+                      OPPONENT
+                    </>
                   )}
                 </h3>
                 <p className="text-on-surface-variant text-xs font-body mb-6">
-                  {isCreator
-                    ? "Share the game link with your opponent"
-                    : `Stake ${formatCKB(gameState.stakeAmount)} CKB to enter the match`}
+                  {isCreator === false
+                    ? `Stake ${formatCKB(gameState.stakeAmount)} CKB to enter the match`
+                    : "Share the game link with your opponent"}
                 </p>
 
-                {/* Progress bar (creator only) */}
-                {isCreator && (
+                {/* Progress bar (creator or loading) */}
+                {isCreator !== false && (
                   <>
                     <div className="w-full h-1 bg-surface-container-highest rounded-sm overflow-hidden">
                       <div
@@ -988,8 +1002,8 @@ function WaitingRoom({
                   </>
                 )}
 
-                {/* Stake info (opponent) */}
-                {!isCreator && (
+                {/* Stake info (opponent only) */}
+                {isCreator === false && (
                   <div className="w-full glass-panel rounded-sm p-3 text-center">
                     <span className="text-[10px] font-headline tracking-widest text-on-surface-variant block mb-1">
                       TOTAL_POT_AFTER_JOIN
@@ -1005,7 +1019,7 @@ function WaitingRoom({
         </div>
 
         {/* Cancel button (creator only) */}
-        {isCreator && (
+        {isCreator === true && (
           <div className="mt-8 flex justify-center">
             <button
               onClick={handleCancel}

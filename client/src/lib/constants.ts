@@ -10,7 +10,7 @@ export const SCRIPT_HASH_TYPE = "type" as const;
 export const SCRIPT_CELL_DEP = {
   outPoint: {
     txHash:
-      "0x4dfd4e2b086ba8eca9d60c0fae80ec9f5c717319f855c85bb9c411c8157e6d5b",
+      "0xc1fdf9c24c256df4cc391c02509a8448555b43506401610085231f6deca97211",
     index: "0x0",
   },
   depType: "code" as const,

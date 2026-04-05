@@ -118,8 +118,9 @@ export function useGameState(initialGameId: string) {
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [lastPoll, setLastPoll] = useState(0);
   const [cellConsumed, setCellConsumed] = useState(false);
+  // Track highest status ever seen — never go below this
+  const highestStatusRef = useRef(0);
 
   const gameIdRef = useRef(initialGameId);
   const playerXRef = useRef<string | null>(null);
@@ -135,6 +136,10 @@ export function useGameState(initialGameId: string) {
   }, []);
 
   function applyCell(gs: GameState, cap: bigint, lock: ccc.ScriptLike | null, gid: string) {
+    // Hard guard: never go to a lower status than we've ever seen
+    if (gs.gameStatus < highestStatusRef.current) return;
+    highestStatusRef.current = gs.gameStatus;
+
     playerXRef.current = gs.playerXLock;
     gameStateRef.current = gs;
     dispatch({ type: "SET_CELL", gameState: gs, capacity: cap, lockScript: lock, gameId: gid });
@@ -171,7 +176,7 @@ export function useGameState(initialGameId: string) {
         candidates = forward;
       } else {
         // No forward progress found — don't update
-        setLastPoll(Date.now());
+        // no state update here — avoids unnecessary re-renders
         return;
       }
     }
@@ -210,7 +215,6 @@ export function useGameState(initialGameId: string) {
       }
     }
 
-    setLastPoll(Date.now());
   }
 
   // ---- Initial load ----
@@ -264,9 +268,9 @@ export function useGameState(initialGameId: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client]);
 
-  function pausePolling(ms = 25000) {
+  function pausePolling(ms = 25000, expectMoreMoves = true) {
     pausedUntilRef.current = Date.now() + ms;
-    if (state.gameState) {
+    if (expectMoreMoves && state.gameState) {
       minMovesRef.current = countMoves(state.gameState.board) + 1;
     }
   }
@@ -295,7 +299,6 @@ export function useGameState(initialGameId: string) {
     error: state.error,
     loading,
     refreshing,
-    lastPoll,
     cellConsumed,
     pausePolling,
     refresh,

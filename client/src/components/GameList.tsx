@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ccc } from "@ckb-ccc/connector-react";
 import type { GameCell as GameCellType } from "@/lib/types";
@@ -15,6 +16,16 @@ export default function GameList({ games, onJoined }: GameListProps) {
   const router = useRouter();
   const signer = ccc.useSigner();
   const { joinGame, loading } = useGameActions();
+  const [myLockHash, setMyLockHash] = useState("");
+
+  useEffect(() => {
+    if (!signer) { setMyLockHash(""); return; }
+    let cancelled = false;
+    signer.getRecommendedAddressObj().then((addr) => {
+      if (!cancelled) setMyLockHash(addr.script.hash());
+    });
+    return () => { cancelled = true; };
+  }, [signer]);
 
   async function handleJoin(game: GameCellType) {
     if (!signer) return;
@@ -44,6 +55,8 @@ export default function GameList({ games, onJoined }: GameListProps) {
     <div className="flex flex-col gap-2">
       {games.map((game) => {
         const gameId = `${game.outPoint.txHash}:${game.outPoint.index}`;
+        const isMyGame = myLockHash && game.state.playerXLock.toLowerCase() === myLockHash.toLowerCase();
+
         return (
           <div
             key={gameId}
@@ -60,6 +73,9 @@ export default function GameList({ games, onJoined }: GameListProps) {
             <div className="flex-1 min-w-0">
               <p className="text-on-surface text-sm font-body truncate">
                 {shortenAddress(game.state.playerXLock)}
+                {isMyGame && (
+                  <span className="ml-2 text-[10px] text-primary font-headline tracking-widest">YOU</span>
+                )}
               </p>
               <p className="text-on-surface-variant text-[10px] font-body">
                 Waiting for opponent
@@ -76,14 +92,23 @@ export default function GameList({ games, onJoined }: GameListProps) {
               </p>
             </div>
 
-            {/* Join button */}
-            <button
-              onClick={() => handleJoin(game)}
-              disabled={loading || !signer}
-              className="cta-gradient text-on-primary-fixed font-headline font-bold text-xs px-4 py-2 rounded-sm tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed shrink-0"
-            >
-              JOIN
-            </button>
+            {/* Action button */}
+            {isMyGame ? (
+              <button
+                onClick={() => router.push(`/game/${encodeURIComponent(gameId)}`)}
+                className="ghost-border text-on-surface-variant font-headline font-bold text-xs px-4 py-2 rounded-sm tracking-wider hover:text-on-surface transition-colors cursor-pointer shrink-0"
+              >
+                VIEW
+              </button>
+            ) : (
+              <button
+                onClick={() => handleJoin(game)}
+                disabled={loading || !signer || !myLockHash}
+                className="cta-gradient text-on-primary-fixed font-headline font-bold text-xs px-4 py-2 rounded-sm tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed shrink-0"
+              >
+                JOIN
+              </button>
+            )}
           </div>
         );
       })}

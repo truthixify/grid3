@@ -16,10 +16,10 @@ export default function LobbyPage() {
   const signer = ccc.useSigner();
   const [waitingGames, setWaitingGames] = useState<GameCell[]>([]);
   const [loadingGames, setLoadingGames] = useState(true);
+  const [refreshingGames, setRefreshingGames] = useState(false);
 
   const fetchGames = useCallback(async () => {
     if (!client) return;
-    setLoadingGames(true);
     try {
       const cells = await findGameCells(client, GameStatus.WAITING);
       setWaitingGames(cells);
@@ -27,8 +27,14 @@ export default function LobbyPage() {
       // Silently fail
     } finally {
       setLoadingGames(false);
+      setRefreshingGames(false);
     }
   }, [client]);
+
+  function handleRefreshGames() {
+    setRefreshingGames(true);
+    fetchGames();
+  }
 
   useEffect(() => {
     fetchGames();
@@ -99,24 +105,32 @@ export default function LobbyPage() {
               </h2>
             </div>
             <button
-              onClick={fetchGames}
-              className="text-on-surface-variant text-xs font-body hover:text-on-surface transition-colors flex items-center gap-1 cursor-pointer"
+              onClick={handleRefreshGames}
+              disabled={refreshingGames}
+              className="text-on-surface-variant text-xs font-body hover:text-on-surface transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-50"
             >
-              <span className="material-symbols-outlined text-sm">
+              <span className={`material-symbols-outlined text-sm ${refreshingGames ? "animate-spin" : ""}`}>
                 refresh
               </span>
-              Refresh
+              {refreshingGames ? "Syncing..." : "Refresh"}
             </button>
           </div>
 
           {loadingGames ? (
-            <div className="glass-panel rounded-sm p-6 text-center">
-              <p className="text-on-surface-variant text-sm font-body">
-                Scanning chain for games...
-              </p>
+            <div className="flex flex-col gap-2">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="glass-panel rounded-sm h-16 animate-pulse" />
+              ))}
             </div>
           ) : (
-            <GameList games={waitingGames} onJoined={fetchGames} />
+            <div className="relative">
+              {refreshingGames && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface/50 rounded-sm">
+                  <span className="material-symbols-outlined text-primary text-xl animate-spin">refresh</span>
+                </div>
+              )}
+              <GameList games={waitingGames} onJoined={fetchGames} />
+            </div>
           )}
         </section>
 
