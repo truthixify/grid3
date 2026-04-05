@@ -6,7 +6,7 @@ Built on Nervos CKB
 
 # **1\. Overview**
 
-Tic Tac Toe on CKB is a two-player, on-chain game where players stake CKBytes to play. The game logic lives entirely in a CKB script that validates each move transaction. No randomness is involved, making it a clean fit for CKB's deterministic validation model.
+Tic Tac Toe on CKB is a two-player, on-chain game where players stake CKB to play. The game logic lives entirely in a CKB script that validates each move transaction. No randomness is involved, making it a clean fit for CKB's deterministic validation model.
 
 Each move is a transaction. The script validates that the transaction represents a legal game state transition. State lives in cell data. The script does not execute or modify state, it only approves or rejects proposed transitions.
 
@@ -14,7 +14,7 @@ Each move is a transaction. The script validates that the transaction represents
 
 Before the game design, a quick note on how CKB works since it is different from EVM chains:
 
-* Everything on CKB is a cell. A cell has capacity (CKBytes), data, a lock script, and an optional type script.
+* Everything on CKB is a cell. A cell has capacity (CKB), data, a lock script, and an optional type script.
 
 * Scripts are validators, not executors. A script runs to return success or failure. It does not write state.
 
@@ -40,7 +40,7 @@ This means Tic Tac Toe on CKB is essentially a state machine. The script defines
 
 ## **3.2 Stakes**
 
-| Entry stake | Each player locks an equal amount of CKBytes to start the game |
+| Entry stake | Each player locks an equal amount of CKB to start the game |
 | :---- | :---- |
 | **Winner payout** | 80% of the total pool goes to the winner |
 | **Draw payout** | Each player gets their stake back (50/50 split) |
@@ -69,7 +69,7 @@ The game cell data layout (all values packed as bytes):
 | `current_turn` | 1 byte | 1 \= X's turn, 2 \= O's turn |
 | `player_x_lock` | 32 bytes | Lock hash identifying Player X |
 | `player_o_lock` | 32 bytes | Lock hash identifying Player O |
-| `stake_amount` | 8 bytes | CKBytes staked per player (u64) |
+| `stake_amount` | 8 bytes | CKB staked per player (u64) |
 | `winner` | 1 byte | 0 \= no winner yet, 1 \= X wins, 2 \= O wins, 3 \= draw |
 
 Total cell data: 84 bytes. Compact and cheap to store on-chain.
