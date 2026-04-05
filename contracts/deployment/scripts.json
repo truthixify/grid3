@@ -1,0 +1,37 @@
+{
+  "devnet": {
+    "tictactoe-script": {
+      "codeHash": "0x76ee7120f748eaa005f9efb4b8196e0c5b795c9bc64a05d081b6c3ba5b4090b1",
+      "hashType": "type",
+      "cellDeps": [
+        {
+          "cellDep": {
+            "outPoint": {
+              "txHash": "0x77730326334754ce124d3a1d66144bb6aa44d255903fb28e5b3743443d2cf69b",
+              "index": 0
+            },
+            "depType": "code"
+          }
+        }
+      ]
+    }
+  },
+  "testnet": {
+    "tictactoe-script": {
+      "codeHash": "0x4245528f6287893443bb2a160757f32c4aba0669772c2575955abbff298dc59d",
+      "hashType": "type",
+      "cellDeps": [
+        {
+          "cellDep": {
+            "outPoint": {
+              "txHash": "0x4dfd4e2b086ba8eca9d60c0fae80ec9f5c717319f855c85bb9c411c8157e6d5b",
+              "index": 0
+            },
+            "depType": "code"
+          }
+        }
+      ]
+    }
+  },
+  "mainnet": {}
+}

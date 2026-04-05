@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+@theme {
+  /* Surface colors */
+  --color-surface: #0B0E11;
+  --color-surface-container-low: #101417;
+  --color-surface-container: #161A1E;
+  --color-surface-container-high: #1C2024;
+  --color-surface-container-highest: #22262B;
+  --color-surface-variant: #22262B;
+
+  /* On-surface (text) */
+  --color-on-surface: #F8F9FE;
+  --color-on-surface-variant: #A9ABAF;
+
+  /* Outline / borders */
+  --color-outline: #737679;
+  --color-outline-variant: #45484C;
+
+  /* Primary */
+  --color-primary: #69DAFF;
+  --color-primary-container: #00CFFC;
+  --color-primary-dim: #00C0EA;
+
+  /* Secondary */
+  --color-secondary: #D674FF;
+  --color-secondary-container: #9900CF;
+  --color-secondary-dim: #BB00FC;
+
+  /* Tertiary */
+  --color-tertiary: #89A5FF;
+
+  /* Error */
+  --color-error: #FF716C;
+  --color-error-container: #9F0519;
+
+  /* On primary fixed */
+  --color-on-primary-fixed: #002A35;
+
+  /* Font families */
+  --font-headline: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-body: var(--font-inter), "Inter", sans-serif;
+}
+
+/* ---- Base styles ---- */
+html,
+body {
+  background-color: #0B0E11;
+  color: #F8F9FE;
+  font-family: var(--font-body);
+}
+
+/* ---- Glass panel utility ---- */
+.glass-panel {
+  background: rgba(34, 38, 43, 0.4);
+  border: 1px solid rgba(69, 72, 76, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ---- Ghost border utility ---- */
+.ghost-border {
+  border: 1px solid rgba(69, 72, 76, 0.15);
+}
+
+/* ---- CTA gradient ---- */
+.cta-gradient {
+  background: linear-gradient(135deg, #69DAFF 0%, #00CFFC 100%);
+}
+
+/* ---- Hero text gradient ---- */
+.text-gradient-hero {
+  background: linear-gradient(135deg, #69DAFF 0%, #D674FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---- Waiting / pulse animation ---- */
+@keyframes waiting-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    box-shadow: 0 0 20px 4px rgba(105, 218, 255, 0.15);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 40px 8px rgba(105, 218, 255, 0.35);
+  }
+}
+
+.waiting-pulse {
+  animation: waiting-pulse 2s ease-in-out infinite;
+}
+
+/* ---- Spinning border animation ---- */
+@keyframes spin-border {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spin-border {
+  animation: spin-border 3s linear infinite;
+}
+
+/* ---- Grid background pattern ---- */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(69, 72, 76, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(69, 72, 76, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ---- Glow effects for X and O ---- */
+.glow-primary {
+  filter: drop-shadow(0 0 12px rgba(105, 218, 255, 0.6));
+}
+
+.glow-secondary {
+  filter: drop-shadow(0 0 12px rgba(214, 116, 255, 0.6));
+}
+
+/* ---- Scrollbar styling ---- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #101417;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #45484C;
+  border-radius: 0.125rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #737679;
+}
+
+/* ---- Progress bar ---- */
+.progress-bar {
+  background: linear-gradient(90deg, #69DAFF 0%, #00CFFC 100%);
+}
