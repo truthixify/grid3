@@ -19,6 +19,6 @@
   <!-- Text -->
   <text x="100" y="250" font-family="monospace" font-weight="900" font-size="96" fill="#F8F9FE" font-style="italic">GRID3</text>
   <text x="100" y="320" font-family="monospace" font-weight="400" font-size="28" fill="#A9ABAF">On-Chain Tic Tac Toe</text>
-  <text x="100" y="370" font-family="monospace" font-weight="400" font-size="20" fill="#69DAFF">Stake CKBytes. Play on-chain. Win rewards.</text>
+  <text x="100" y="370" font-family="monospace" font-weight="400" font-size="20" fill="#69DAFF">Stake CKB. Play on-chain. Win rewards.</text>
   <text x="100" y="480" font-family="monospace" font-weight="600" font-size="16" fill="#45484C">Built on Nervos CKB</text>
 </svg>

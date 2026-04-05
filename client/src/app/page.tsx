@@ -49,7 +49,7 @@ export default function LobbyPage() {
           </div>
 
           <h1 className="font-headline font-bold text-3xl md:text-5xl lg:text-6xl text-on-surface mb-2 leading-tight">
-            STAKE CKBYTES,
+            STAKE CKB,
             <br />
             <span className="text-gradient-hero">PLAY ON-CHAIN</span>
           </h1>

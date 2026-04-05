@@ -18,7 +18,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "GRID3 — On-Chain Tic Tac Toe",
   description:
-    "Stake CKBytes. Play on-chain. A fully decentralized Tic Tac Toe game built on Nervos CKB.",
+    "Stake CKB. Play on-chain. A fully decentralized Tic Tac Toe game built on Nervos CKB.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "GRID3 — On-Chain Tic Tac Toe",
     description:
-      "Stake CKBytes. Play on-chain. Win rewards. A fully decentralized Tic Tac Toe game on Nervos CKB.",
+      "Stake CKB. Play on-chain. Win rewards. A fully decentralized Tic Tac Toe game on Nervos CKB.",
     images: [
       {
         url: "/og-image.svg",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "GRID3 — On-Chain Tic Tac Toe",
     description:
-      "Stake CKBytes. Play on-chain. Win rewards. Built on Nervos CKB.",
+      "Stake CKB. Play on-chain. Win rewards. Built on Nervos CKB.",
     images: ["/og-image.svg"],
   },
 };
