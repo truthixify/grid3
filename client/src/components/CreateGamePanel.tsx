@@ -12,19 +12,21 @@ import {
 } from "@/lib/constants";
 import { formatCKB } from "@/lib/ckb";
 
+const PRESETS = [100, 500, 1000];
+
 export default function CreateGamePanel() {
   const router = useRouter();
   const signer = ccc.useSigner();
   const { createGame, loading, error } = useGameActions();
   const [stakeInput, setStakeInput] = useState<string>("100");
+  const [customMode, setCustomMode] = useState(false);
+
+  const stakeNum = Number(stakeInput) || 0;
+  const isValid = stakeNum >= MINIMUM_STAKE_CKB && stakeNum <= MAXIMUM_STAKE_CKB;
 
   async function handleCreate() {
-    if (!signer) return;
-    const stakeNum = Number(stakeInput);
-    if (isNaN(stakeNum) || stakeNum < MINIMUM_STAKE_CKB || stakeNum > MAXIMUM_STAKE_CKB) return;
-
+    if (!signer || !isValid) return;
     const stakeShannons = BigInt(stakeNum) * SHANNONS_PER_CKB;
-
     try {
       const txHash = await createGame(stakeShannons);
       router.push(`/game/${encodeURIComponent(`${txHash}:0x0`)}`);
@@ -44,31 +46,66 @@ export default function CreateGamePanel() {
           INITIATE NEW MATCH
         </h3>
       </div>
-      <p className="text-on-surface-variant text-xs font-body mb-6">
+      <p className="text-on-surface-variant text-xs font-body mb-5">
         Set your stake and create a new game cell on CKB.
       </p>
 
-      {/* Stake input */}
-      <label className="block mb-4">
-        <span className="text-on-surface-variant text-[10px] font-headline tracking-widest mb-1 block">
-          STAKE_AMOUNT (CKB)
-        </span>
+      {/* Preset buttons */}
+      <span className="text-on-surface-variant text-[10px] font-headline tracking-widest mb-2 block">
+        STAKE_AMOUNT (CKB)
+      </span>
+      <div className="flex gap-2 mb-3">
+        {PRESETS.map((amount) => (
+          <button
+            key={amount}
+            onClick={() => { setStakeInput(String(amount)); setCustomMode(false); }}
+            className={`flex-1 py-2 rounded-sm text-xs font-headline font-bold tracking-widest transition-colors cursor-pointer ${
+              !customMode && stakeNum === amount
+                ? "cta-gradient text-on-primary-fixed"
+                : "bg-surface-container-high text-on-surface-variant hover:text-on-surface ghost-border"
+            }`}
+          >
+            {amount}
+          </button>
+        ))}
+        <button
+          onClick={() => { setCustomMode(true); setStakeInput(""); }}
+          className={`px-3 py-2 rounded-sm text-xs font-headline font-bold tracking-widest transition-colors cursor-pointer ${
+            customMode
+              ? "cta-gradient text-on-primary-fixed"
+              : "bg-surface-container-high text-on-surface-variant hover:text-on-surface ghost-border"
+          }`}
+        >
+          <span className="material-symbols-outlined text-sm">edit</span>
+        </button>
+      </div>
+
+      {/* Custom input */}
+      {customMode && (
         <input
           type="number"
           min={MINIMUM_STAKE_CKB}
           max={MAXIMUM_STAKE_CKB}
           value={stakeInput}
           onChange={(e) => setStakeInput(e.target.value)}
-          className="w-full bg-transparent border-b border-outline-variant text-on-surface font-headline text-2xl font-bold py-2 outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/40"
-          placeholder="100"
+          autoFocus
+          className="w-full bg-transparent border-b border-outline-variant text-on-surface font-headline text-xl font-bold py-2 mb-1 outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          placeholder={`${MINIMUM_STAKE_CKB} — ${MAXIMUM_STAKE_CKB.toLocaleString()}`}
         />
-      </label>
+      )}
+
+      {/* Selected amount display */}
+      {!customMode && (
+        <p className="text-on-surface font-headline font-bold text-xl mb-1">
+          {stakeNum.toLocaleString()} <span className="text-sm text-on-surface-variant">CKB</span>
+        </p>
+      )}
 
       {/* Cell capacity fee */}
-      <div className="flex items-center justify-between mb-6 text-xs font-body">
+      <div className="flex items-center justify-between mb-5 text-xs font-body mt-3">
         <span className="text-on-surface-variant">Cell Capacity Fee</span>
         <span className="text-on-surface">
-          {formatCKB(GAME_CELL_CAPACITY)} CKB
+          ~{formatCKB(GAME_CELL_CAPACITY)} CKB
         </span>
       </div>
 
@@ -80,7 +117,7 @@ export default function CreateGamePanel() {
       {/* Create button */}
       <button
         onClick={handleCreate}
-        disabled={loading || !signer}
+        disabled={loading || !signer || !isValid}
         className="w-full cta-gradient text-on-primary-fixed font-headline font-bold text-sm tracking-widest px-4 py-3 rounded-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
       >
         <span className="material-symbols-outlined text-base">
